@@ -1,6 +1,5 @@
 import 'package:carea_app/core/theme/app_pallete.dart';
 import 'package:carea_app/core/theme/text_style.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {

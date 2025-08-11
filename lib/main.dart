@@ -1,5 +1,6 @@
 import 'package:carea_app/container_injection.dart';
 import 'package:carea_app/features/auth/presentation/pages/login_page.dart';
+import 'package:carea_app/features/food/presentation/pages/home_page.dart';
 import 'package:carea_app/features/food/presentation/bloc/recipe_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,21 +13,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initDependencies();
 
-  runApp(MultiBlocProvider(
-    providers: [
-      BlocProvider(
-        create: (_) => serviceLocator<AppUserCubit>(),
-      ),
-      BlocProvider(
-        create: (_) => serviceLocator<AuthBloc>(),
-      ),
-      BlocProvider(
-        create: (_) => serviceLocator<RecipeBloc>(),
-      ),
-    ],
-    child: const MyApp(),
-  ));
-
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => serviceLocator<AppUserCubit>()),
+        BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
+        BlocProvider(create: (_) => serviceLocator<RecipeBloc>()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -43,6 +39,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     context.read<AuthBloc>().add(AuthIsUserLoggedIn());
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -55,7 +52,7 @@ class _MyAppState extends State<MyApp> {
         },
         builder: (context, isLoggedIn) {
           if (isLoggedIn) {
-            return const Scaffold();
+            return const HomePage();
           }
           return const LoginPage();
         },

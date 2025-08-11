@@ -39,13 +39,6 @@ class ProductCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                // child: CachedNetworkImage(
-                //   imageUrl: image,
-                //   fit: BoxFit.cover,
-                //   width: double.infinity,
-                //   height: double.infinity,
-                //   placeholder: (context, url) => Center(child: const Loader()),
-                // ),
                 child: ImageContainer(
                   imageUrl: image,
                   fit: BoxFit.cover,
@@ -116,4 +109,3 @@ class ProductCard extends StatelessWidget {
     );
   }
 }
-

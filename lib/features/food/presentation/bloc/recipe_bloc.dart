@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carea_app/core/usecases/usecase.dart';
 import 'package:carea_app/features/food/domain/entities/recipe.dart';
 import 'package:carea_app/features/food/domain/usecases/get_recipe.dart';
