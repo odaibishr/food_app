@@ -1,6 +1,7 @@
 import 'package:carea_app/core/common/widgets/loader.dart';
 import 'package:carea_app/core/theme/app_pallete.dart';
 import 'package:carea_app/core/theme/text_style.dart';
+import 'package:carea_app/features/food/domain/entities/tag.dart';
 import 'package:carea_app/features/food/presentation/bloc/recipe_bloc.dart';
 import 'package:carea_app/features/food/presentation/pages/product_detail_page.dart';
 import 'package:carea_app/features/food/presentation/widgets/icon_with_counter.dart';
@@ -71,71 +72,6 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
-class SearchField extends StatelessWidget {
-  const SearchField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      child: TextFormField(
-        onChanged: (value) {},
-        decoration: InputDecoration(
-          filled: true,
-          hintStyle: const TextStyle(color: Color(0xFF757575)),
-          fillColor: const Color(0xFF979797).withValues(alpha: 0.1),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide.none,
-          ),
-          hintText: "Search product",
-          prefixIcon: const Icon(Icons.search),
-        ),
-      ),
-    );
-  }
-}
-
-class DiscountBanner extends StatelessWidget {
-  const DiscountBanner({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF4A3298),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Text.rich(
-        TextSpan(
-          style: TextStyle(color: Colors.white),
-          children: [
-            TextSpan(text: "A Summer Surpise\n"),
-            TextSpan(
-              text: "Cashback 20%",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class Categories extends StatefulWidget {
   const Categories({super.key});
 
@@ -152,27 +88,75 @@ class _CategoriesState extends State<Categories> {
     {"icon": giftIcon, "text": "Sausage"},
     {"icon": discoverIcon, "text": "More"},
   ];
+
+  List<Tag> tags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<RecipeBloc>().add(GetTagsEvent());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    context.read<RecipeBloc>().close();
+  }
+
   @override
   Widget build(BuildContext context) {
-    int activeIndex = 0;
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(
-          categories.length,
-          (index) => CategoryCard(
-            icon: categories[index]["icon"],
-            text: categories[index]["text"],
-            press: () {
-              setState(() {
-                activeIndex = index;
-              });
+    return SizedBox(
+      height: 110,
+      width: double.infinity,
+      child: BlocBuilder<RecipeBloc, RecipeState>(
+        buildWhen: (previous, current) {
+          // Rebuild when tags-related states arrive or when we have no cached tags yet
+          return current is TagsLoading ||
+              current is TagsLoaded ||
+              current is TagsError ||
+              tags.isEmpty;
+        },
+        builder: (context, state) {
+          if (state is TagsLoaded) {
+            tags = state.tags;
+          }
+
+          if (tags.isEmpty) {
+            if (state is TagsError) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(state.message, style: TextStyles.body),
+              );
+            }
+            // Show loader only when we don't have cached tags yet
+            return const Center(child: Loader());
+          }
+
+          // Render cached or newly loaded tags regardless of other Bloc states
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: const BouncingScrollPhysics(),
+            primary: false,
+            shrinkWrap: true,
+            itemCount: tags.length,
+            itemBuilder: (context, index) {
+              return CategoryCard(
+                icon: flashIcon,
+                text: tags[index].name,
+                press: () {
+                  context.read<RecipeBloc>().add(
+                    GetRecipesByTagEvent(tagId: tags[index].id),
+                  );
+                  setState(() {
+                    activeIndex = index;
+                  });
+                },
+                isActive: index == activeIndex,
+              );
             },
-            isActive: index == activeIndex,
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -187,7 +171,8 @@ class CategoryCard extends StatelessWidget {
     this.isActive = false,
   });
 
-  final String icon, text;
+  final String icon;
+  final String text;
   final GestureTapCallback press;
   final bool isActive;
 
@@ -196,12 +181,12 @@ class CategoryCard extends StatelessWidget {
     return GestureDetector(
       onTap: press,
       child: Container(
-        width: 89.75,
+        width: 89,
         // height: 109.0,
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.transparent,
+          color: isActive ? AppPallete.lightGrey : Colors.transparent,
           borderRadius: BorderRadius.circular(50),
           border: Border.all(color: AppPallete.border),
         ),
@@ -415,9 +400,6 @@ const heartIcon =
 </svg>
 ''';
 
-const String description =
-    "Wireless Controller for PS4™ gives you what you want in your gaming from over precision control your games to sharing …";
-
 const billIcon =
     '''<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M16.2149 12.2832C16.2149 12.6547 15.9099 12.9547 15.5347 12.9547H6.46532C6.08894 12.9547 5.78625 12.6547 5.78625 12.2832C5.78625 11.9116 6.08894 11.6116 6.46532 11.6116H15.5347C15.9099 11.6116 16.2149 11.9116 16.2149 12.2832ZM16.2149 7.24678C16.2149 7.61835 15.9099 7.9183 15.5347 7.9183H6.46532C6.08894 7.9183 5.78625 7.61835 5.78625 7.24678C5.78625 6.87521 6.08894 6.57527 6.46532 6.57527H15.5347C15.9099 6.57527 16.2149 6.87521 16.2149 7.24678ZM20.6396 17.7806L17.8757 20.3973L14.901 17.5825C14.6368 17.3341 14.2219 17.333 13.9589 17.5837L10.9921 20.3973L8.02412 17.5837C7.7611 17.333 7.34505 17.333 7.0809 17.5837L4.11409 20.3973L1.3604 17.7818V4.0291C1.3604 2.54841 2.5825 1.34303 4.08121 1.34303H17.9188C19.4186 1.34303 20.6396 2.54841 20.6396 4.0291V17.7806ZM17.9188 0H4.08121C1.83088 0 0 1.8075 0 4.0291V17.9978C0 18.0112 0.00680202 18.0235 0.00793569 18.0369C-0.00113367 18.2238 0.0623519 18.4119 0.208595 18.5518L3.64248 21.812C3.90663 22.0616 4.32268 22.0627 4.5857 21.812L7.55251 18.9983L10.5205 21.812C10.7835 22.0627 11.1984 22.0627 11.4625 21.812L14.4305 18.9983L17.4052 21.8131C17.5367 21.9373 17.7057 22 17.8757 22C18.0446 22 18.2147 21.9373 18.3462 21.8131L21.7903 18.5529C21.9376 18.413 22.0011 18.2238 21.9921 18.0369C21.9932 18.0224 22 18.0112 22 17.9978V4.0291C22 1.8075 20.1691 0 17.9188 0Z" fill="#FF7643"/>
@@ -426,7 +408,7 @@ const billIcon =
 
 const flashIcon =
     '''<svg width="19" height="22" viewBox="0 0 19 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M8.77515 20.8036V13.4372C8.77515 12.8219 8.26702 12.3207 7.64317 12.3207L1.25313 12.4037L10.2248 1.19586V8.56224C10.2248 9.17757 10.733 9.67877 11.3568 9.67877L17.7469 9.59575L8.77515 20.8036ZM18.8789 9.11013C18.6758 8.69299 18.2571 8.43357 17.7879 8.43357H11.4873V1.19586C11.4873 0.681174 11.1696 0.239128 10.6772 0.0689514C10.1859 -0.101226 9.65675 0.0502734 9.33062 0.449774L0.266324 11.6265C-0.0271929 11.9876 -0.0818985 12.4722 0.121144 12.8893C0.324186 13.3064 0.742894 13.5659 1.2121 13.5659H7.51271V20.8036C7.51271 21.3183 7.83043 21.7603 8.32278 21.9305C8.45744 21.9772 8.59525 22 8.73097 22C9.08866 22 9.43267 21.8412 9.66938 21.5497L18.7337 10.374C19.0272 10.0119 19.0819 9.52831 18.8789 9.11013Z" fill="#FF7643"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8.77515 20.8036V13.4372C8.77515 12.8219 8.26702 12.3207 7.64317 12.3207L1.25313 12.4037L10.2248 1.19586V8.56224C10.2248 9.17757 10.733 9.67877 11.3568 9.67877L17.7469 9.59575L8.77515 20.8036ZM17.7272 18.9918L10.0163 19.4546L14.2726 13.0082L21.9835 12.5454L17.7272 18.9918ZM23.1527 11.2269L13.8876 11.783C13.6907 11.7948 13.5127 11.8976 13.4041 12.0622L8.28988 19.8079C8.16037 20.0049 8.15326 20.2583 8.27104 20.4623C8.38883 20.6663 8.61179 20.7868 8.84715 20.7731L18.1123 20.217C18.2104 20.2106 18.304 20.1818 18.3867 20.134C18.4694 20.0863 18.5412 20.0197 18.5958 19.9379L23.7099 12.1921C23.8395 11.9951 23.8466 11.7417 23.7288 11.5377C23.611 11.3337 23.388 11.2132 23.1527 11.2269ZM20.8773 24.4478C16.2184 27.1376 10.2414 25.5354 7.55208 20.8774C4.86279 16.2194 6.46366 10.242 11.1226 7.55217C15.7814 4.86236 21.7585 6.46465 24.4477 11.1226C27.137 15.7806 25.5362 21.758 20.8773 24.4478ZM10.4999 6.47372C5.24698 9.50651 3.44085 16.2471 6.47363 21.5C9.50642 26.7529 16.247 28.5591 21.4999 25.5263C26.7528 22.4935 28.559 15.7529 25.5262 10.5C22.4934 5.24707 15.7528 3.44094 10.4999 6.47372Z" fill="#FF7643"/>
 </svg>
 ''';
 

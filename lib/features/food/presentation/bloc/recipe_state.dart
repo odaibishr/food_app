@@ -28,3 +28,16 @@ final class RecipeDetailsError extends RecipeState {
 }
 
 final class RecipeDetailsLoading extends RecipeState {}
+
+final class TagsLoaded extends RecipeState {
+  final List<Tag> tags;
+  TagsLoaded({required this.tags});
+}
+
+final class TagsError extends RecipeState {
+  final String message;
+  TagsError({required this.message});
+}
+
+final class TagsLoading extends RecipeState {}
+

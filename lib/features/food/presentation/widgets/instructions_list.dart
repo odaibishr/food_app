@@ -13,13 +13,24 @@ class InstructionsList extends StatelessWidget {
       children:
           instructions
               .map(
-                (step) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text(
-                    step,
-                    style: TextStyles.body.copyWith(
-                      color: AppPallete.textHeader,
-                    ),
+                (step) => Container(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${instructions.indexOf(step) + 1}. ',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      Expanded(
+                        child: Text(
+                          step,
+                          style: TextStyles.body.copyWith(
+                            color: AppPallete.textHeader,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               )

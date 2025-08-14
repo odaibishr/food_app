@@ -3,7 +3,7 @@ import 'package:carea_app/core/theme/text_style.dart';
 import 'package:carea_app/features/food/presentation/widgets/icon_with_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:carea_app/features/food/domain/entities/recipe.dart';
-import 'package:carea_app/features/food/presentation/widgets/custom_button.dart';
+// import 'package:carea_app/features/food/presentation/widgets/custom_button.dart';
 import 'package:carea_app/features/food/presentation/widgets/products_details_image.dart';
 import 'package:carea_app/features/food/presentation/widgets/products_details_info.dart';
 import 'package:carea_app/features/food/presentation/widgets/product_details_tabs.dart';
@@ -78,7 +78,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ? IngredientsList(ingredients: widget.recipe.ingredients)
                 : InstructionsList(instructions: widget.recipe.instructions),
             const SizedBox(height: 20),
-            CustomButton(text: 'Add to Cart', onPressed: () {}),
+            // CustomButston(text: 'Add to Cart', onPressed: () {}),
           ],
         ),
       ),

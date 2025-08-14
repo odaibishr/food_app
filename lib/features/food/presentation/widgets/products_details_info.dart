@@ -21,9 +21,15 @@ class ProductsDetailsInfo extends StatelessWidget {
           style: TextStyles.header1.copyWith(color: AppPallete.textHeader),
         ),
         const SizedBox(height: 20),
-        Text(
-          "$cookTime minutes",
-          style: TextStyles.body.copyWith(color: AppPallete.textHeader),
+        Row(
+          children: [
+            Icon(Icons.timer, color: AppPallete.primary, size: 18),
+            const SizedBox(width: 5),
+            Text(
+              "$cookTime minutes",
+              style: TextStyles.body.copyWith(color: AppPallete.textHeader),
+            ),
+          ],
         ),
       ],
     );

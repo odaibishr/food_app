@@ -54,7 +54,8 @@ class _MyAppState extends State<MyApp> {
           if (isLoggedIn) {
             return const HomePage();
           }
-          return const LoginPage();
+          // return const LoginPage();
+          return const HomePage();
         },
       ),
     );

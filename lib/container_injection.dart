@@ -10,6 +10,8 @@ import 'package:carea_app/features/food/data/repos/recipe_repo_impl.dart';
 import 'package:carea_app/features/food/domain/repos/recipe_repo.dart';
 import 'package:carea_app/features/food/domain/usecases/get_recipe.dart';
 import 'package:carea_app/features/food/domain/usecases/get_recipes.dart';
+import 'package:carea_app/features/food/domain/usecases/get_recipes_by_tag.dart';
+import 'package:carea_app/features/food/domain/usecases/get_tags.dart';
 import 'package:carea_app/features/food/presentation/bloc/recipe_bloc.dart';
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:dio/dio.dart';
@@ -56,6 +58,8 @@ void _initRecipe() {
     () => RecipeBloc(
       getRecipe: serviceLocator<GetRecipe>(),
       getRecipes: serviceLocator<GetRecipes>(),
+      getRecipesByTag: serviceLocator<GetRecipesByTag>(),
+      getTags: serviceLocator<GetTags>(),
     ),
   );
 
@@ -77,6 +81,12 @@ void _initRecipe() {
   serviceLocator.registerFactory(
     () => GetRecipes(serviceLocator<RecipeRepo>()),
   );
+
+  serviceLocator.registerFactory(
+    () => GetRecipesByTag(serviceLocator<RecipeRepo>()),
+  );
+
+  serviceLocator.registerFactory(() => GetTags(serviceLocator<RecipeRepo>()));
 
   // Api
   serviceLocator.registerLazySingleton<ApiConsumer>(
